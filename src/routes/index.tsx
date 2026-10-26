@@ -272,7 +272,7 @@ function App() {
     await checkIn(text);
   }
 
-  const openProposal = goal?.log.findLast((e) => e.type === "proposal" && e.proposal.state === "open") as
+  const openProposal = [...(goal?.log ?? [])].reverse().find((e) => e.type === "proposal" && e.proposal.state === "open") as
     | Extract<Entry, { type: "proposal" }> | undefined;
 
   // keyboard
