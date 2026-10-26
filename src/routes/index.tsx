@@ -116,7 +116,7 @@ function Workspace() {
     if (!text) return;
     setInput("");
     if (text.startsWith("/")) {
-      const cmd = text.slice(1).split(" ")[0];
+      const cmd = text.slice(1).split(" ")[0] ?? "";
       const replies: Record<string, string> = {
         help: "/help · /plan · /today · /reset · /new — commands run locally, no AI call.",
         plan: "M2 Build base 58% → M3 10 km steady (Dec 20) → M4 Long run 16 km (Feb 14) → M5 Taper and race (Mar 28).",
@@ -136,7 +136,7 @@ function Workspace() {
     const ops: Op[] = [];
     const next = tasks.map((t) => {
       if (!t.keywords.some((k) => lower.includes(k))) return t;
-      const skipped = /skip|missed|didn'?t|no time/.test(lower.split(t.keywords.find((k) => lower.includes(k))!)[0].slice(-25));
+      const skipped = /skip|missed|didn'?t|no time/.test((lower.split(t.keywords.find((k) => lower.includes(k)) ?? "")[0] ?? "").slice(-25));
       ops.push({ kind: skipped ? "skip" : "complete", text: `task.${skipped ? "skip" : "complete"} ${t.title}` });
       return { ...t, status: skipped ? ("skipped" as const) : ("done" as const) };
     });
