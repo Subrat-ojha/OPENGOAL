@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { generatePlan, interpretCheckIn, suggestGoal } from "@/lib/ai.functions";
 import {
   STORAGE_KEY, activeMilestone, addDays, bestStreak, dayState, daysBetween, fmt, fmtLong, goalPct, iso,
-  milestonePct, paceLabel, streak, uid, weekDays,
+  milestonePct, paceLabel, parseIso, streak, uid, weekDays,
   type Entry, type Goal, type Milestone, type Op, type Proposal, type Task,
 } from "@/lib/goals";
 
@@ -422,13 +422,13 @@ function App() {
                     const s = dayState(goal.tasks, d);
                     return (
                       <span key={d} className={cn(d === today && "underline underline-offset-4")}>
-                        {"MTWTFSS"[(new Date(d).getDay() + 6) % 7]}{" "}
+                        {"MTWTFSS"[(parseIso(d).getDay() + 6) % 7]}{" "}
                         <span className={cn(s === "done" && "text-success", s === "partial" && "text-primary")}>{s === "empty" ? "□" : "■"}</span>
                       </span>
                     );
                   })}
                 </p>
-                <p className="mt-1 text-muted-foreground">streak {streak(goal.tasks, today)} days · best {bestStreak(goal.tasks)}</p>
+                <p className="mt-1 text-muted-foreground">streak {streak(goal.tasks, today)}d · best {bestStreak(goal.tasks)}</p>
               </Section>
 
               <Section title="AI USAGE">
