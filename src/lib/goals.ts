@@ -1,6 +1,6 @@
 // Local, AI-free goal tracking: progress, streaks, dates.
 export type TaskStatus = "todo" | "done" | "skipped";
-export type Task = { id: string; title: string; date: string; status: TaskStatus; milestone: number; reason?: string };
+export type Task = { id: string; title: string; date: string; status: TaskStatus; milestone: number; reason?: string | undefined };
 export type Milestone = { title: string; due: string };
 export type Op = { kind: "complete" | "skip" | "schedule" | "info"; text: string };
 export type Proposal = {

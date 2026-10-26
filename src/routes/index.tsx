@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
   component: App,
 });
 
-type Draft = { title: string; targetDate: string; milestones: Milestone[]; tasks: Task[]; notes?: string; tokens: number };
+type Draft = { title: string; targetDate: string; milestones: Milestone[]; tasks: Task[]; notes?: string | undefined; tokens: number };
 type Phase = "setup-goal" | "setup-date" | "review" | "workspace";
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9:.]+/g, "-").replace(/^-|-$/g, "").slice(0, 32);
