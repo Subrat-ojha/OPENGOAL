@@ -9,4 +9,8 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Goal data lives in browser localStorage (`src/lib/goals.ts`); progress, streaks and deadlines are computed locally — AI is called only via `src/lib/ai.functions.ts` for goal suggestions, plans and check-in interpretation, to keep AI costs low.
+- Store accepted goals in a versioned workspace with stable goal IDs; all task, history and AI updates are scoped to the selected ID to prevent cross-goal contamination.
+- Guest workspaces use browser storage; signed-in workspaces use owner-scoped Cloud rows with revision-checked writes to avoid cross-account leaks and silent multi-device overwrites. Browser imports are explicit.
+- Keep progress, streaks and deadlines local and AI-free; use `src/lib/ai.functions.ts` only for suggestions, planning and check-in interpretation to limit AI costs.
+- Validate AI responses and persisted workspaces with shared schemas before mutating state so malformed plans never erase existing tasks.
+- Use the root account provider for identity transitions; public workspace actions use RLS-scoped browser access, and private server functions must independently verify authentication.

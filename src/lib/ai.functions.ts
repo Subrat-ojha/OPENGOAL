@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { askJson } from "./ai.server";
+import { checkInSchema, dateSchema, suggestionSchema, validatePlan } from "./goal-schemas";
 
 const planTask = z.object({ title: z.string(), date: z.string(), milestone: z.number().int() });
 
@@ -11,7 +12,10 @@ export const suggestGoal = createServerFn({ method: "POST" })
       "You help people pick realistic, specific, measurable personal goals. Keys: title (short, measurable), targetDate (YYYY-MM-DD, realistic), why (one sentence).",
       `Today is ${data.today}. The person's interest: "${data.idea || "anything — suggest a good starter goal"}".`,
     );
-    return r;
+    if (!r.ok) return r;
+    const parsed = suggestionSchema.safeParse(r.data);
+    if (!parsed.success || parsed.data.targetDate <= data.today) return { ok: false as const, error: "AI returned an invalid goal. Try another suggestion." };
+    return { ...r, data: parsed.data };
   });
 
 export const generatePlan = createServerFn({ method: "POST" })
@@ -19,8 +23,8 @@ export const generatePlan = createServerFn({ method: "POST" })
     z
       .object({
         title: z.string().max(300),
-        targetDate: z.string(),
-        today: z.string(),
+        targetDate: dateSchema,
+        today: dateSchema,
         notes: z.string().max(1000).optional(),
         existingMilestones: z.array(z.object({ title: z.string(), due: z.string(), pct: z.number() })).optional(),
       })
@@ -38,7 +42,12 @@ export const generatePlan = createServerFn({ method: "POST" })
         data.existingMilestones ? `\nExisting milestones: ${JSON.stringify(data.existingMilestones)}` : ""
       }`,
     );
-    return r;
+    if (!r.ok) return r;
+    const parsed = validatePlan(r.data, data.today, data.targetDate);
+    if (!parsed.success) return { ok: false as const, error: "AI returned an incomplete or invalid day plan. Your existing plan is unchanged. Try again." };
+    if (data.existingMilestones && (parsed.data.milestones.length !== data.existingMilestones.length || parsed.data.milestones.some((m, i) => m.title !== data.existingMilestones?.[i]?.title)))
+      return { ok: false as const, error: "AI changed the milestone order. Your existing plan is unchanged; try again." };
+    return { ...r, data: parsed.data };
   });
 
 export const interpretCheckIn = createServerFn({ method: "POST" })
@@ -75,5 +84,11 @@ Only use task ids from the list.`,
         data.tasks,
       )}\nRecent skips: ${data.skipHistory || "none"}\nCheck-in: "${data.text}"`,
     );
-    return r;
+    if (!r.ok) return r;
+    const parsed = checkInSchema.safeParse(r.data);
+    if (!parsed.success) return { ok: false as const, error: "AI returned an invalid check-in. Your plan is unchanged; try again." };
+    const ids = new Set(data.tasks.map((t) => t.id));
+    if (parsed.data.ops.some((o) => o.op === "schedule" ? (o.milestone ?? 0) >= data.milestones.length : !ids.has(o.taskId)) || parsed.data.proposal?.add.some((t) => t.milestone >= data.milestones.length) || parsed.data.proposal?.removeTaskIds.some((id) => !ids.has(id)))
+      return { ok: false as const, error: "AI referenced tasks outside this goal. No changes were made." };
+    return { ...r, data: parsed.data };
   });
