@@ -14,7 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      goal_workspaces: {
+        Row: {
+          data: Json
+          revision: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          data?: Json
+          revision?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          data?: Json
+          revision?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
