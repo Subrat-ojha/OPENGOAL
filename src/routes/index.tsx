@@ -495,7 +495,6 @@ function App() {
                 <p className="font-bold">{draft.title}</p>
                 <p className="mt-1 text-muted-foreground">Target {fmt(draft.targetDate)} {draft.targetDate.slice(0, 4)}</p>
               </Section>
-              <Section title="UPCOMING DAY PLANS"><DayPlans tasks={goal.tasks.filter((t) => t.date > today)} /></Section>
               <Section title="DAY PLANS"><DayPlans tasks={draft.tasks} /></Section>
               <Section title="MILESTONES"><MilestoneList milestones={draft.milestones} tasks={draft.tasks} active={0} /></Section>
             </>

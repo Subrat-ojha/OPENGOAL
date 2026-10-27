@@ -15,7 +15,7 @@ export type Proposal = {
 export type Entry =
   | { type: "user"; text: string }
   | { type: "ops"; meta: string; ops: Op[] }
-  | { type: "reply"; text: string; tone?: "error" }
+  | { type: "reply"; text: string; tone?: "error" | undefined }
   | { type: "proposal"; proposal: Proposal };
 export type AiCall = { date: string; tokens: number };
 export type Goal = {
