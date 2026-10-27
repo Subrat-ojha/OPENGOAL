@@ -15,10 +15,11 @@ export type Proposal = {
 export type Entry =
   | { type: "user"; text: string }
   | { type: "ops"; meta: string; ops: Op[] }
-  | { type: "reply"; text: string; tone?: "error" }
+  | { type: "reply"; text: string; tone?: "error" | undefined }
   | { type: "proposal"; proposal: Proposal };
 export type AiCall = { date: string; tokens: number };
 export type Goal = {
+  id: string;
   title: string;
   targetDate: string;
   startDate: string;
@@ -116,3 +117,31 @@ export function paceLabel(goal: Goal, today: string) {
 }
 
 export const STORAGE_KEY = "opengoals.v1";
+
+export const WORKSPACE_KEY = "opengoals.v2";
+export type Workspace = { version: 2; goals: Goal[]; activeGoalId: string | null };
+export const emptyWorkspace = (): Workspace => ({ version: 2, goals: [], activeGoalId: null });
+
+export function isIsoDate(value: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && iso(parseIso(value)) === value;
+}
+
+export function parseTarget(input: string, today: string): string | null {
+  const value = input.trim().toLowerCase();
+  if (isIsoDate(value)) return value > today ? value : null;
+  const match = value.match(/^(\d+)\s*(d|day|days|w|week|weeks|m|month|months)$/);
+  if (!match) return null;
+  const n = Number(match[1]);
+  const unit = match[2];
+  if (!unit || n < 1 || n > 3650) return null;
+  const result = addDays(today, unit.startsWith("d") ? n : unit.startsWith("w") ? n * 7 : n * 30);
+  return isIsoDate(result) ? result : null;
+}
+
+export function updateGoal(workspace: Workspace, id: string, update: (goal: Goal) => Goal): Workspace {
+  return { ...workspace, goals: workspace.goals.map((goal) => goal.id === id ? update(goal) : goal) };
+}
+
+export function tasksForDay(goal: Pick<Goal, "tasks">, day: string) {
+  return goal.tasks.filter((task) => task.date === day || (task.date < day && task.status === "todo"));
+}
