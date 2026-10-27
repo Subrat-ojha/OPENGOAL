@@ -1,0 +1,4 @@
+- [ ] Fix independent multi-goal state and daily plan display, including drafts and future tasks.
+- [ ] Add account sign-in and private online storage for goals, tasks, plans and history; preserve existing browser goals.
+- [ ] Add beginner-friendly /docs.
+- [ ] Audit related edge cases and test multiple-goal switching, saving and account isolation.
