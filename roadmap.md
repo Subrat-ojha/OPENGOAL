@@ -1,4 +1,5 @@
-- [ ] Fix independent multi-goal state and daily plan display, including drafts and future tasks.
-- [ ] Add account sign-in and private online storage for goals, tasks, plans and history; preserve existing browser goals.
-- [ ] Add beginner-friendly /docs.
-- [ ] Audit related edge cases and test multiple-goal switching, saving and account isolation.
+- [x] Fix independent multi-goal state and daily plan display, including drafts and future tasks.
+- [x] Add account sign-in and private online storage for goals, tasks, plans and history; preserve existing browser goals.
+- [x] Add beginner-friendly /docs.
+- [x] Audit related edge cases; verify real AI multi-goal creation, switching, reload and mobile plans; run 15 regression tests.
+- [ ] Verify authenticated online saving and cross-account isolation end-to-end — blocked: no existing auth user or active session; signup confirmation is required.

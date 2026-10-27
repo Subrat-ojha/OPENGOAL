@@ -36,14 +36,14 @@ export const generatePlan = createServerFn({ method: "POST" })
       tasks: z.infer<typeof planTask>[];
     }>(
       `You are a goal planner. Break a goal into 3-6 milestones (title, due YYYY-MM-DD, last one due on the target date) and concrete daily tasks for the next 14 days starting today (title under 40 chars, date YYYY-MM-DD, milestone = 0-based milestone index). 1-3 tasks per day, rest days allowed. Keys: milestones, tasks.${
-        data.existingMilestones ? " Keep existing milestones (same order and titles) unless clearly unrealistic; plan tasks for the current one." : ""
+        data.existingMilestones ? " Keep existing milestones exactly (same order, titles and due dates, including past dates); plan new tasks for the current one." : ""
       }`,
       `Today: ${data.today}\nGoal: ${data.title}\nTarget: ${data.targetDate}${data.notes ? `\nNotes: ${data.notes}` : ""}${
         data.existingMilestones ? `\nExisting milestones: ${JSON.stringify(data.existingMilestones)}` : ""
       }`,
     );
     if (!r.ok) return r;
-    const parsed = validatePlan(r.data, data.today, data.targetDate);
+    const parsed = validatePlan(r.data, data.today, data.targetDate, Boolean(data.existingMilestones));
     if (!parsed.success) return { ok: false as const, error: "AI returned an incomplete or invalid day plan. Your existing plan is unchanged. Try again." };
     if (data.existingMilestones && (parsed.data.milestones.length !== data.existingMilestones.length || parsed.data.milestones.some((m, i) => m.title !== data.existingMilestones?.[i]?.title)))
       return { ok: false as const, error: "AI changed the milestone order. Your existing plan is unchanged; try again." };

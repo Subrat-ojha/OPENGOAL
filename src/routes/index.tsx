@@ -370,7 +370,7 @@ function App() {
       </header>
 
       <nav className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border px-4 py-2" aria-label="Workspace controls">
-        <select aria-label="Selected goal" value={workspace.activeGoalId ?? ""} disabled={!!busy || phase !== "workspace"} onChange={(e) => switchGoal(e.target.value)} className="min-w-0 max-w-64 flex-1 border border-input bg-panel px-2 py-1 text-foreground">
+        <select aria-label="Selected goal" value={workspace.activeGoalId ?? ""} disabled={!!busy || phase !== "workspace"} onChange={(e) => switchGoal(e.target.value)} className="min-w-40 max-w-full basis-full border border-input bg-panel px-2 py-1 text-foreground sm:max-w-64 sm:basis-auto sm:flex-1">
           {!workspace.goals.length && <option value="">No saved goals</option>}
           {workspace.goals.map((g) => <option key={g.id} value={g.id}>{g.title}</option>)}
         </select>
@@ -384,7 +384,7 @@ function App() {
         {user && guestAvailable && <Button size="sm" variant="outline" disabled={!!busy} onClick={importGuest}>Import browser goals</Button>}
       </nav>
       {storageError && <p role="alert" className="shrink-0 border-b border-border px-4 py-2 text-destructive">{storageError}</p>}
-      <div className="flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1">
         <main className="flex min-w-0 flex-1 flex-col">
           <div ref={logRef} className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
             {phase === "workspace" && goal ? (
@@ -427,7 +427,7 @@ function App() {
           </div>
         </main>
 
-        <aside aria-label="Goal plans" className={cn("w-full shrink-0 overflow-y-auto border-l border-border bg-panel px-5 py-6 md:block md:w-[380px]", showPanel ? "absolute inset-x-0 top-28 bottom-7 z-10 md:static" : "hidden")}>
+        <aside aria-label="Goal plans" className={cn("w-full shrink-0 overflow-y-auto border-l border-border bg-panel px-5 py-6 md:block md:w-[380px]", showPanel ? "absolute inset-0 z-10 md:static" : "hidden")}>
           {phase === "workspace" && goal ? (
             <>
               <Section title="GOAL">
@@ -512,9 +512,9 @@ function App() {
         </aside>
       </div>
 
-      <footer className="flex h-7 shrink-0 items-center justify-between bg-primary px-4 font-medium text-primary-foreground">
-        <span>{mode} · {phase === "workspace" ? "check-in" : phase === "review" ? "plan review" : "goal setup"}</span>
-        <span className="truncate">
+      <footer className="flex h-7 shrink-0 items-center justify-between gap-3 bg-primary px-4 text-xs font-medium text-primary-foreground">
+        <span className="shrink-0">{mode} · {phase === "workspace" ? "check-in" : phase === "review" ? "plan review" : "goal setup"}</span>
+        <span className="min-w-0 truncate">
           {goal ? `${paceLabel(goal, today)} · next: ${nextTask ? `${nextTask.title.toLowerCase()} ${nextTask.date === today ? "today" : fmtLong(nextTask.date).split(" ")[0]}` : "/replan"}` : "no goal yet"}
         </span>
       </footer>

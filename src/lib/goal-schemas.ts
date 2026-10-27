@@ -6,13 +6,13 @@ const title = z.string().trim().min(1).max(300);
 export const milestoneSchema = z.object({ title, due: dateSchema });
 export const planTaskSchema = z.object({ title, date: dateSchema, milestone: z.number().int().nonnegative() });
 export const planSchema = z.object({ milestones: z.array(milestoneSchema).min(1).max(8), tasks: z.array(planTaskSchema).min(1).max(60) });
-export function validatePlan(value: unknown, today: string, target: string) {
+export function validatePlan(value: unknown, today: string, target: string, existing = false) {
   return planSchema.superRefine((plan, ctx) => {
     for (const task of plan.tasks) {
       if (task.milestone >= plan.milestones.length || task.date < today || task.date > addDays(today, 13) || task.date > target)
         ctx.addIssue({ code: "custom", message: "Task outside plan dates or milestones" });
     }
-    if (plan.milestones.some((m) => m.due < today || m.due > target) || plan.milestones.at(-1)?.due !== target)
+    if (plan.milestones.some((m) => (!existing && m.due < today) || m.due > target) || plan.milestones.at(-1)?.due !== target)
       ctx.addIssue({ code: "custom", message: "Invalid milestone deadline" });
   }).safeParse(value);
 }
