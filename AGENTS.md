@@ -14,3 +14,4 @@
 - Keep progress, streaks and deadlines local and AI-free; use `src/lib/ai.functions.ts` only for suggestions, planning and check-in interpretation to limit AI costs.
 - Validate AI responses and persisted workspaces with shared schemas before mutating state so malformed plans never erase existing tasks.
 - Use the root account provider for identity transitions; public workspace actions use RLS-scoped browser access, and private server functions must independently verify authentication.
+- Weekly review reads the shared validated workspace and derives metrics locally; goal-ID deep links never fall back to another goal when the requested ID is missing.
