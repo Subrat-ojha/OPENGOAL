@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, BookOpen, PanelRight, LogOut, Download } from "lucide-react";
+import { Plus, BookOpen, PanelRight, LogOut, Download, BarChart3 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/components/auth-provider";
@@ -277,7 +277,8 @@ function App() {
     if (!goal) return;
     const cmd = text.slice(1).split(" ")[0] ?? "";
     const local = (msg: string) => say({ type: "user", text }, { type: "reply", text: msg });
-    if (cmd === "help") return local("/today · /plan · /replan (AI) · /clear confirm · /new (adds a goal) · /docs");
+    if (cmd === "help") return local("/today · /plan · /review · /replan (AI) · /clear confirm · /new (adds a goal) · /docs");
+    if (cmd === "review") return void navigate({ to: "/review", search: { goal: goal.id } });
     if (cmd === "docs") return void navigate({ to: "/docs" });
     if (cmd === "today") {
       const open = todayTasks.filter((t) => t.status === "todo");
@@ -377,6 +378,7 @@ function App() {
         <Button size="sm" variant="ghost" disabled={!!busy || phase !== "workspace"} onClick={startOver}><Plus />Add goal</Button>
         {phase !== "workspace" && goal && <Button size="sm" variant="ghost" disabled={!!busy} onClick={() => { setDraft(null); setSetupLog([]); setSetupCalls([]); setInput(""); setPhase("workspace"); }}>Cancel draft</Button>}
         <Button size="sm" variant="ghost" disabled={!!busy} asChild><Link to="/docs"><BookOpen />Docs</Link></Button>
+        {goal && phase === "workspace" && <Button size="sm" variant="ghost" disabled={!!busy || saveStatus === "saving" || saveStatus === "not saved"} asChild><Link to="/review" search={{ goal: goal.id }}><BarChart3 />Review</Link></Button>}
         <Button size="sm" variant="ghost" className="md:hidden" onClick={() => setShowPanel((v) => !v)} aria-expanded={showPanel}><PanelRight />{showPanel ? "Close plans" : "Plans"}</Button>
         <Button size="sm" variant="ghost" title="Export backup" aria-label="Export backup" onClick={exportBackup}><Download /></Button>
         {user ? <Button size="sm" variant="ghost" disabled={!!busy || signingOut || saveStatus === "saving" || saveStatus === "not saved"} title={user.email} onClick={() => void signOut()}><LogOut />Sign out</Button> : <Button size="sm" variant="ghost" disabled={!!busy} asChild><Link to="/auth">Sign in</Link></Button>}
