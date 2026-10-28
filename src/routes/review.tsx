@@ -8,7 +8,7 @@ import { activityWeeks, reviewStats } from "@/lib/review";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/review")({
-  validateSearch: (search: Record<string, unknown>): { goal?: string } => ({ goal: typeof search.goal === "string" ? search.goal : undefined }),
+  validateSearch: (search: Record<string, unknown>): { goal?: string } => typeof search["goal"] === "string" ? { goal: search["goal"] } : {},
   head: () => ({ meta: [
     { title: "OpenGoals — Weekly review" },
     { name: "description", content: "Review your goal's weekly progress, activity, milestones, deadlines and AI usage." },
@@ -49,10 +49,9 @@ function Review() {
     </header>
     <nav aria-label="Review controls" className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
       <Button asChild variant="ghost" size="sm"><Link to="/"><ArrowLeft />Workspace</Link></Button>
-      <select aria-label="Review goal" value={goal?.id ?? ""} onChange={(event) => { void navigate({ to: "/review", search: { goal: event.target.value } }); setOffset(-1); }} className="min-w-0 max-w-full flex-1 border border-input bg-panel px-2 py-1 sm:max-w-64" disabled={!loaded}>
+      <select aria-label="Review goal" value={goal?.id ?? ""} onChange={(event) => { void navigate({ to: "/review", search: { goal: event.target.value } }); setOffset(-1); }} className="min-w-40 max-w-full basis-full border border-input bg-panel px-2 py-1 sm:max-w-64 sm:basis-auto sm:flex-1" disabled={!loaded}>
         {!goal && <option value="">Select a goal</option>}{workspace.goals.map((goal) => <option key={goal.id} value={goal.id}>{goal.title}</option>)}
       </select>
-      {search.goal && <Button variant="ghost" size="sm" asChild><Link to="/review" search={{}}>All goals</Link></Button>}
       <Button asChild variant="ghost" size="sm"><Link to="/docs"><BookOpen />Docs</Link></Button>
       <span role="status" className="text-xs text-muted-foreground">{status}</span>
     </nav>
