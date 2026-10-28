@@ -45,7 +45,7 @@ function Review() {
   return <div className="flex min-h-dvh flex-col bg-background text-foreground">
     <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2">
       <div className="flex min-w-0 items-center gap-2"><Link to="/" className="font-bold text-primary">opengoals</Link><span className="text-subtle">/</span><span className="max-w-52 truncate text-muted-foreground">{goal?.title ?? "workspace"}</span><span className="text-subtle">/</span><span>review</span></div>
-      <span className="text-muted-foreground">{fmtLong(today)}</span>
+      <span className="text-muted-foreground">{loaded ? fmtLong(today) : "—"}</span>
     </header>
     <nav aria-label="Review controls" className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
       <Button asChild variant="ghost" size="sm"><Link to="/"><ArrowLeft />Workspace</Link></Button>
