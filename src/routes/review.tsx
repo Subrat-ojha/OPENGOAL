@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/review")({
 function Review() {
   const { workspace, setWorkspace, loaded, error, status, reload } = useWorkspace();
   const search = Route.useSearch();
+  const navigate = useNavigate();
   const [today, setToday] = useState(() => iso(new Date()));
   const [offset, setOffset] = useState(-1);
   useEffect(() => {
@@ -48,7 +49,7 @@ function Review() {
     </header>
     <nav aria-label="Review controls" className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
       <Button asChild variant="ghost" size="sm"><Link to="/"><ArrowLeft />Workspace</Link></Button>
-      <select aria-label="Review goal" value={goal?.id ?? ""} onChange={(event) => { setWorkspace((current) => ({ ...current, activeGoalId: event.target.value })); setOffset(-1); }} className="min-w-0 max-w-full flex-1 border border-input bg-panel px-2 py-1 sm:max-w-64" disabled={!loaded || Boolean(search.goal)}>
+      <select aria-label="Review goal" value={goal?.id ?? ""} onChange={(event) => { void navigate({ to: "/review", search: { goal: event.target.value } }); setOffset(-1); }} className="min-w-0 max-w-full flex-1 border border-input bg-panel px-2 py-1 sm:max-w-64" disabled={!loaded}>
         {!goal && <option value="">Select a goal</option>}{workspace.goals.map((goal) => <option key={goal.id} value={goal.id}>{goal.title}</option>)}
       </select>
       {search.goal && <Button variant="ghost" size="sm" asChild><Link to="/review" search={{}}>All goals</Link></Button>}
