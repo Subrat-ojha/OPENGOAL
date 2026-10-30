@@ -128,7 +128,7 @@ function App() {
       milestone: Math.min(Math.max(0, t.milestone ?? 0), milestones.length - 1),
     }));
     if (!milestones.length || !tasks.length) return say({ type: "reply", text: "The plan came back empty. Press r to try again.", tone: "error" });
-    setDraft({ title, targetDate, milestones, tasks, notes, tokens: r.tokens });
+    setDraft({ title: r.data.title ?? title, targetDate, milestones, tasks, notes, tokens: r.tokens });
     setPhase("review");
   }
 
@@ -156,7 +156,7 @@ function App() {
     if (phase === "setup-date") {
       const d = parseTarget(text, today);
       say({ type: "user", text });
-      if (!d) return say({ type: "reply", text: "I need a future date like 2027-03-28 or a span like 12 weeks.", tone: "error" });
+      if (!d) return say({ type: "reply", text: "I need a future date like 25 Dec 2026, 2027-03-28, or a span like 12 weeks.", tone: "error" });
       await makePlan(pendingTitle, d);
       return;
     }
