@@ -126,10 +126,26 @@ export function isIsoDate(value: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && iso(parseIso(value)) === value;
 }
 
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 export function parseTarget(input: string, today: string): string | null {
-  const value = input.trim().toLowerCase();
-  if (isIsoDate(value)) return value > today ? value : null;
-  const match = value.match(/^(\d+)\s*(d|day|days|w|week|weeks|m|month|months)$/);
+  const value = input.trim().toLowerCase().replace(/(\d)(st|nd|rd|th)\b/g, "$1").replace(/,/g, " ");
+  const future = (d: string) => (isIsoDate(d) && d > today ? d : null);
+  const isoHit = value.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+  if (isoHit?.[1]) return future(isoHit[1]);
+  const mk = (day: number, mon: string, year?: string) => {
+    const m = MONTHS.indexOf(mon.slice(0, 3)) + 1;
+    if (!m) return null;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    let y = year ? Number(year) : Number(today.slice(0, 4));
+    let d = `${y}-${pad(m)}-${pad(day)}`;
+    if (!year && d <= today) { y++; d = `${y}-${pad(m)}-${pad(day)}`; }
+    return future(d);
+  };
+  const dm = value.match(/\b(\d{1,2})\s+([a-z]{3,9})\.?(?:\s+(\d{4}))?\b/);
+  if (dm?.[1] && dm[2] && MONTHS.includes(dm[2].slice(0, 3))) return mk(Number(dm[1]), dm[2], dm[3]);
+  const md = value.match(/\b([a-z]{3,9})\.?\s+(\d{1,2})(?:\s+(\d{4}))?\b/);
+  if (md?.[1] && md[2] && MONTHS.includes(md[1].slice(0, 3))) return mk(Number(md[2]), md[1], md[3]);
+  const match = value.replace(/^in\s+/, "").match(/^(\d+)\s*(d|day|days|w|week|weeks|m|month|months)$/);
   if (!match) return null;
   const n = Number(match[1]);
   const unit = match[2];

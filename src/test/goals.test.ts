@@ -19,3 +19,10 @@ describe("goal tracking", () => {
     expect(streak([t("2026-10-23", "done"), t("2026-10-25", "done")], "2026-10-26")).toBe(1);
   });
 });
+
+import { parseTarget as pt } from "@/lib/goals";
+describe("natural target dates", () => {
+  it("reads '25 dec 2026' inside a sentence", () => expect(pt("i will make deadline to 25 dec 2026 , ok", "2026-10-30")).toBe("2026-12-25"));
+  it("reads 'Dec 25th'", () => expect(pt("Dec 25th", "2026-10-30")).toBe("2026-12-25"));
+  it("rejects past dates", () => expect(pt("1 jan 2020", "2026-10-30")).toBeNull());
+});
