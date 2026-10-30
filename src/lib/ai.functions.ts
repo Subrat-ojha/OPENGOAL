@@ -96,25 +96,27 @@ Only use task ids from the list.`,
     return { ...r, data: parsed.data };
   });
 
-const stripNulls = (o: Record<string, unknown>) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Loose = any;
+const stripNulls = (o: Record<string, unknown>): Loose => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined));
 
 /** Keep valid ops, drop bad ones, so one malformed op does not fail the whole check-in. */
 export function sanitizeCheckIn(value: unknown, ids: Set<string>, milestoneCount: number) {
   if (!value || typeof value !== "object") return value;
   const v = value as { ops?: unknown; reply?: unknown; proposal?: unknown };
   const ops = (Array.isArray(v.ops) ? v.ops : [])
-    .filter((o): o is Record<string, unknown> => !!o && typeof o === "object")
+    .filter((o: Loose) => !!o && typeof o === "object")
     .map(stripNulls)
     .map((o) => (o.op === "schedule" && typeof o.milestone === "number" ? { ...o, milestone: Math.min(Math.max(0, Math.round(o.milestone)), Math.max(0, milestoneCount - 1)) } : o))
     .filter((o) => (o.op === "schedule" ? typeof o.title === "string" && typeof o.date === "string" && isIsoDate(o.date) : typeof o.taskId === "string" && ids.has(o.taskId)))
     .slice(0, 60);
-  let proposal: unknown = v.proposal && typeof v.proposal === "object" ? stripNulls(v.proposal as Record<string, unknown>) : null;
+  let proposal: unknown = v.proposal && typeof v.proposal === "object" ? stripNulls(v.proposal as Record<string, unknown>) as Loose : null;
   if (proposal) {
-    const p = proposal as Record<string, unknown>;
+    const p = proposal as Loose;
     proposal = { title: p.title ?? "plan change", reason: p.reason ?? "", note: p.note ?? "",
-      removeTaskIds: (Array.isArray(p.removeTaskIds) ? p.removeTaskIds : []).filter((id) => typeof id === "string" && ids.has(id)),
-      add: (Array.isArray(p.add) ? p.add : []).filter((t) => t && typeof t === "object" && typeof t.title === "string" && typeof t.date === "string" && isIsoDate(t.date))
-        .map((t) => ({ title: t.title, date: t.date, milestone: Math.min(Math.max(0, Math.round(Number(t.milestone) || 0)), Math.max(0, milestoneCount - 1)) })) };
+      removeTaskIds: (Array.isArray(p.removeTaskIds) ? p.removeTaskIds : []).filter((id: Loose) => typeof id === "string" && ids.has(id)),
+      add: (Array.isArray(p.add) ? p.add : []).filter((t: Loose) => t && typeof t === "object" && typeof t.title === "string" && typeof t.date === "string" && isIsoDate(t.date))
+        .map((t: Loose) => ({ title: t.title, date: t.date, milestone: Math.min(Math.max(0, Math.round(Number(t.milestone) || 0)), Math.max(0, milestoneCount - 1)) })) };
   }
   return { ops, reply: typeof v.reply === "string" ? v.reply.slice(0, 3000) : "", proposal };
 }
